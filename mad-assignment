@@ -1,0 +1,136 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter UI Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const HomeScreen(),
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  final TextEditingController _textController = TextEditingController();
+  List<String> items = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  void _addItem() {
+    if (_textController.text.isNotEmpty) {
+      setState(() {
+        items.add(_textController.text);
+        _textController.clear();
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Flutter UI"),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(icon: Icon(Icons.list), text: "List View"),
+            Tab(icon: Icon(Icons.grid_on), text: "Grid View"),
+          ],
+        ),
+      ),
+      body: Column(
+        children: [
+          // Input Field & Button
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _textController,
+                    decoration: const InputDecoration(
+                      labelText: "Enter item",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: _addItem,
+                  child: const Text("Add"),
+                ),
+              ],
+            ),
+          ),
+          // Tab Bar View
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // List View
+                ListView.builder(
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      margin: const EdgeInsets.all(8),
+                      child: ListTile(
+                        title: Text(items[index]),
+                        leading: const Icon(Icons.star),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            setState(() {
+                              items.removeAt(index);
+                            });
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                // Grid View
+                GridView.builder(
+                  itemCount: items.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 3,
+                  ),
+                  itemBuilder: (context, index) {
+                    return Card(
+                      margin: const EdgeInsets.all(8),
+                      child: Center(
+                        child: Text(items[index], style: const TextStyle(fontSize: 18)),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
